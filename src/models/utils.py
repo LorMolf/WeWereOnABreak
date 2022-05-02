@@ -211,7 +211,3 @@ def getBitErrorRate() :
                             [0.725,0.225,0.05,0,0]]).T
 
     return np.concatenate((distr_eb_0,distr_eb_1),axis=1).tolist()
-
-    
-
-print(getRouterRelation())

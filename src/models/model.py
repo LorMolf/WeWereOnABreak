@@ -612,40 +612,4 @@ class Model():
         return (id,self.query_map[id])
         
 
-# m=Model(0.5,0.1,0.3,1.2)
-# ds=m.getStatistics('data/mispellings.csv','data/synonyms.csv')
-# d_e=m.getSubtitles_en('friends/Friends - season 1.en/Friends - 1x01 - The One Where Monica Gets A Roommate.SAiNTS.en.srt')
-# d_i=m.getSubtitles_it('friends/Friends - season 1.it/Friends - 1x01 - The One Where Monica Gets A Roommate.DVDRip.SAiNTS.it.srt')
-# d_p=m.getProbabilities()
-
-# for i in range(3):
-#     print(m.getRandomLine())
-
-# d_sw=m.getSwitchScore()
-# print(d_sw.head())
-# d_p.to_csv('data/StatScore.csv')
-
-
-#print(d_p.loc[d_p['LINES'] == m.query_map[2]])
-#print(d_p.loc[2])
-
-# SCORE SWITCH
-#sc=Scorer(0.5,0.1,0.3,1.2,ds,d_e,d_i)
-#l1="Then I look down and I realizethere is a phone.."
-#l2="And it turns out it's my mother."
-#print(sc.computeScore_translation(l1,l2))
-#print(str(d_e.loc[d_e['LINES']==l1]['TIMESTAMPS'].iloc[0]))
-#print(str(d_e.loc[d_e['LINES']==l2]['TIMESTAMPS'].iloc[0]))
-
-
-#APPEND ROWS TO A DATAFRAME
-# df=pd.DataFrame(columns=['LINE1', 'LINE2', 'SWITCH_PROB'])
-# df2 = pd.DataFrame({'LINE1': [21, 25, 26],
-#                     'LINE2': [7, 7, 13],
-#                     'SWITCH_PROB': [11, 3, 3]})
-
-# #add new row to end of DataFrame
-# df = df.append(df2, ignore_index = True)
-# print(df.head())
-
 

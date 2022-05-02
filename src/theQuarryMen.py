@@ -184,8 +184,6 @@ class TheQueryMen():
             distribution.
             --> TOTAL CARD: 
                 2 x 2 (prev_dec) x 5 (BER)
-
-            SOURCE ...
             """
 
             source_distr=self.model.getNoisySwitchScore_flat(self.__input_line)
@@ -287,22 +285,6 @@ class TheQueryMen():
 
         return line,prob
 
-
-    def OLDmakeExactQuery(self,query,evidence):
-        fr_inference=VariableElimination(self.BN)
-        q=fr_inference.query(query,evidence=evidence)
-
-        if self.__modality == "hardcore":
-            vals=q.values
-            source=self.model.getLine(evidence['SOURCE'])
-            print(f"Input line: {vals[source]}")
-            self.__getMostProbableOutput(vals)
-        else:
-            print(q)
-
-        return None
-
-    
     def __getGibbsSamples(self,num_samples):
         """
         Returns samples generated with the Gibbs method.        
