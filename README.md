@@ -8,10 +8,8 @@ is taken into account, too. For this purpose, it has been created a custom datas
 on the probability of each of its words being misspelt.
 
 
-## Introduction
+## 1. Introduction
 
-
-## Model
 The original *Chinese whispers* game, also known as the
 Telephone game , requires more than 2 players to pass a message to each other, whispering it so that the other cannot
 listen. 
@@ -58,7 +56,7 @@ M;
 
 Every modality's features are net of the possibility to specify and analyze the noise presence.
 
-## Dataset and probability distributions
+## 2. Dataset and probability distributions
 Starting from the synonym and misspelling statistics, the
 switching probability of a line is computed according to the words composing it. Such a score is higher as higher is
 the probability of getting an error. As a rule of thumb, we want the score to follow the
