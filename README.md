@@ -68,8 +68,7 @@ the synonyms of a word, the higher the probability of a correct translation even
 after a misspelling, so the lower the switching score
 - the higher the number of possible misspellings, the higher the score
 
-Each word <img src="https://render.githubusercontent.com/render/math?math=w^{(i)}"> is thus associated with a score 
-<img src="https://render.githubusercontent.com/render/math?math=w^{(i)}_\text{score}">
+Each word $w^{(i)}$ is thus associated with a score $w^{(i)}_\text{score}$
 
 $
 w^{(i)}_\text{score}=\frac{
