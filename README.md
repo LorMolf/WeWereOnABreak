@@ -72,6 +72,20 @@ Each word <img src="https://render.githubusercontent.com/render/math?math=w^{(i)
 <img src="https://render.githubusercontent.com/render/math?math=w^{(i)}_\text{score}">
 
 <img src="https://render.githubusercontent.com/render/math?math=w^{(i)}_\text{score}=\omega_\text{len} \cdot \underbrace{\lambda(w^{(i)})}_{\substack{ \text{length of} \\ \text{word}}} \!%2B\! \omega_\text{syn} \cdot \underbrace{\sigma(w^{(i)})}_{\substack{\text{number of} \\ \text{synonyms}}} \!%2B\! \omega_\text{misp} \cdot \underbrace{\mu(w^{(i)})}_{\substack{\text{number of}\\ \text{possible} \\ \text{misspellings}}} \!%2B\! \underbrace{\varsigma_f}_{\substack{\text{smoothing}\\ \text{factor}}} ">
+
+
+
+<img src="https://render.githubusercontent.com/render/math?math=w^{(i)}_\text{score}=\frac{
+ \omega_\text{len} \cdot  \overbrace{\lambda(w^{(i)})}^{\substack{\text{length \
+of}\\ \text{the word}}}
+\!%2B\!
+\omega_\text{misp} \cdot \overbrace{\mu(w^{(i)})}^{\substack{\text{number of}\\\
+ \text{possible} \\ \text{misspellings}}}
+}
+{\omega_\text{syn} \cdot \underbrace{\sigma(w^{(i)})}_{\substack{\text{number o\
+f}\\ \text{synonyms}}}
+\!%2B\!
+ \underbrace{\varsigma_f}_{\substack{\text{smoothing} \\ \text{factor}}}}">
           
 where the <img src="https://render.githubusercontent.com/render/math?math=\varsigma_f"> parameter is necessary 
 in the case a particular word has neither synonyms nor misspellings available in the statistics dataset.
