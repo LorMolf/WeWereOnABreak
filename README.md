@@ -70,14 +70,7 @@ after a misspelling, so the lower the switching score
 
 Each word <img src="https://render.githubusercontent.com/render/math?math={word}^{(i)}"> is thus associated with a score <img src="https://render.githubusercontent.com/render/math?math={word}^{(i)}_\text{score}">
 
-<img src="https://render.githubusercontent.com/render/math?math={word}^{(i)}_\text{score}=\frac{
- \omega_\text{len} \cdot  \lambda({word}^{(i)})
-\!%2B\!
-\omega_\text{misp} \cdot \mu({word}^{(i)})
-}
-{\omega_\text{syn} \cdot \sigma({word}^{(i)})
-\!%2B\!
-\varsigma_f}">
+<img src="https://render.githubusercontent.com/render/math?math={word}^{(i)}_\text{score}=\frac{\omega_\text{len} \cdot \lambda({word}^{(i)}) \!%2B\! \omega_\text{misp} \cdot \mu({word}^{(i)})}{\omega_\text{syn} \cdot \sigma({word}^{(i)}) \!%2B\! \varsigma_f}">
           
 where :
 - the smoothing factor <img src="https://render.githubusercontent.com/render/math?math=\varsigma_f"> is necessary in the case a particular word has neither synonyms nor misspellings available in the statistics dataset;
@@ -102,11 +95,9 @@ keeps track of the number of words the two sentences share. As before, the latte
 
 The final *switching score* for each available message <img src="https://render.githubusercontent.com/render/math?math=\mathcal{M}_i"> is then computed as
 
-<img src="https://render.githubusercontent.com/render/math?math=\omega_i={avg}_{batch} \left ( \textit{switch}_\text{score}^{\mathcal{M}_i \rig\
-htarrow \mathcal{M}_d} \right )">
+<img src="https://render.githubusercontent.com/render/math?math=\omega_i={avg}_{batch} \left ( \textit{switch}_\text{score}^{\mathcal{M}_i \rightarrow \mathcal{M}_d} \right )">
 
-<img src="https://render.githubusercontent.com/render/math?math=\text{with} \mathcal{M}_d \in \textit{df.sample(n=batch\_dim, replace=F\
-alse)}">
+<img src="https://render.githubusercontent.com/render/math?math=\text{with} \mathcal{M}_d \in \textit{df.sample(n=batch\_dim, replace=False)}">
 
 where the "*sample*" function return a random set of size *batch_dim* of different messages <img src="https://render.githubusercontent.com/render/math?math=\mathcal{M}_d"> from the dataset *df* that are used to compute a statistically consistent average of the *switching score* for the particular source message.
 
