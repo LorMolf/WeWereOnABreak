@@ -368,7 +368,7 @@ class Model():
         needed for an error to occur
         F(1)=P(error <= 1 hop) = 1-e^{- \lambda}
 
-        The value of lambda is affected by the level of BAR and 
+        The value of lambda is affected by the level of BER and 
         by the avarage switching score 'a' of the dataset.
 
         It returns the CPD of both DECODER_0 and DECODER_{0+k}
@@ -437,7 +437,7 @@ class Model():
         needed for an error to occur
         F(1)=P(error <= 1 hop) = 1-e^{- \lambda}
 
-        The value of lambda is affected by the level of BAR and the 
+        The value of lambda is affected by the level of BER and the 
         final probability is weighted by the the switch score.
 
         args:
@@ -461,7 +461,6 @@ class Model():
         source=df.apply(lambda x : 1/x).to_numpy()
         dest=df.to_numpy()
 
-        # ---------------------- TO BE CHANGED
         df=pd.DataFrame(source.dot(dest.T)) #dot product between scores (joint score) (P(line_X --> line_Y)) 
         
         res=[]        
@@ -505,55 +504,6 @@ class Model():
 
         return res
 
-
-    def getNoisySwitchScore_old(self) :
-        """
-        According to the Switching Scores datasets this function
-        returns the probability of each line to change as the level
-        of noise ranges between the lowest level (BER1) and the 
-        highest one (BER5).
-
-        Starting from the `switchScore` dataset, the scores are
-        re-mapped such that their sum is unitary, so to obtain
-        a measure suitable with a probability distribution.
-
-        The noise presence affect the score according to
-        a exponential distribution. The higher the level of noise,
-        the lower the number of hops (path between two end-points)
-        needed for an error to occur
-        F(1)=P(error <= 1 hop) = 1-e^{- \lambda}
-
-        The value of lambda is affected by the level of BAR and the 
-        final probability is weighted by the the switch score.
-        """
-        
-        #distribution parameters
-        _lambda=[1,2,3,4,5]  #lambda equals the BER level
-        _exp_distr=[1-exp(-ll) for ll in _lambda]
-
-        df=pd.DataFrame(self.switchScore_df['SWITCH_PROB'])
-        res=[]        
-
-        #bin_distr = lambda x : [item for sublist in [scipy.special.binom(n,k) * x**k * (1-x)**(n-k) for k in k_range_ber] for item in sublist]
-        orthogonalize = lambda x : [i/sum(x) for i in x]  #beware the division by zero
-        exp_cdf_false = lambda x : [item for sublist in [x * y for y in _exp_distr] for item in sublist] #weight by the score x
-        exp_cdf_true = lambda x : [item for sublist in [sqrt(x) * y for y in _exp_distr] for item in sublist]
-
-        
-        df_res=df.apply(exp_cdf_true,axis=1,result_type='expand') #prob. of Error if DEC_{n-1} = TRUE (0) (error occurred)
-        df_res=df_res.merge(df.apply(exp_cdf_false,axis=1,result_type='expand'),left_index=True,right_index=True) #prob. of Error if DEC_{n-1} = FALSE (1) (error did NOT occurr)
-        
-        df_res=df_res.apply(lambda x: 1-x)  #prob.OfSuccess=1-prob.Of.Switch
-        df_res=df_res.apply(orthogonalize,axis=0)  #orthogonalize along columns
-        df_res=df_res.round(decimals=2)   # it should help getting the sum equal to one (not to 0.99999...)
-
-        #make the format suitable with the pgmpy's CPD
-        for i in df_res.index:
-            res.append(df_res.iloc[i].tolist())
-
-        self.noisySwitchCPD=res
-
-        return res
 
     #-------------UTIL FUNCTIONS-------------------------
 

@@ -341,9 +341,10 @@ class TheQueryMen():
 
         return vals
 
-    def makeExactQuery(self,variables,evidence, printCPD=False) -> dict:
+    def makeExactQuery(self,variables : list,evidence : dict, printCPD : bool = False) -> dict:
         """
-        ...
+        Performs the query given as input with the Variable Elimination
+        technique.
 
         In the case the "hardcore" modality was selected, setting the
         parameter `printCPD` to True will make the function print the
@@ -351,8 +352,13 @@ class TheQueryMen():
         results about the most probable output line according to the
         input one and the noise conditions.
 
+        Args:
+            - variables: (list) list of variables over which we want to compute the max-marginal
+            - evidence: (dist) dictionary of variables observed
+            - printCPD: (bool) print the output CPD
+
         Return:
-            - distribution:     (dict) probability distribution of the query's outcome
+            - distribution: (dict) probability distribution of the query's outcome
         """
 
         inference=VariableElimination(self.BN)      
@@ -374,6 +380,46 @@ class TheQueryMen():
 
         else:
             print(distr)
+        
+        return vals
+
+    
+    def alwaysUnchanged(self, evidence : dict = None, printCPD : bool = False) -> dict:
+        """
+        Computes the probability of keeping always unchanged the
+        input line along every message exchange.
+
+        Args:
+            - evidence: (dist) dictionary of variables observed
+            - printCPD: (bool) print the output CPD
+
+        Return:
+            - distribution: (dict) probability distribution of the query's outcome        
+        """
+        variables=['SOURCE']
+
+        for i in range(self.__numOfEndPoints+1):
+            variables.append(f'DECODER_{i}')
+
+        inference=VariableElimination(self.BN)      
+        distr=inference.query(variables,evidence=evidence)
+
+        vals=distr.values
+        
+        if self.__modality == "hardcore":
+            source=evidence['SOURCE']
+
+            input_line=self.model.getLine(source)
+            input_prob=round(vals[source],3)
+            out_line, out_prob=self.__getMostProbableOutput(vals)
+            t = Texttable()
+            t.add_rows([[f'INPUT (PROB. {input_prob})', f'MOST PROBABLE OUTPUT (PROB. {out_prob})'], [input_line, out_line]])
+            print(t.draw())
+            
+            if printCPD: print(distr)
+
+        else:
+            print(vals[0]) # distr.values[0] stores the probability that all the input variables (variables) has value 0, i.e., they succeeded
         
         return vals
 
