@@ -68,25 +68,79 @@ the synonyms of a word, the higher the probability of a correct translation even
 after a misspelling, so the lower the switching score
 - the higher the number of possible misspellings, the higher the score
 
-Each word <img src="https://render.githubusercontent.com/render/math?math=w^{(i)}"> is thus associated with a score <img src="https://render.githubusercontent.com/render/math?math=w^{(i)}_\text{score}">
+Each word <img src="https://render.githubusercontent.com/render/math?math={word}^{(i)}"> is thus associated with a score <img src="https://render.githubusercontent.com/render/math?math={word}^{(i)}_\text{score}">
 
-<img src="https://render.githubusercontent.com/render/math?math=w^{(i)}_\text{score}=\omega_\text{len} \cdot \underbrace{\lambda(w^{(i)})}_{\substack{ \text{length of} \\ \text{word}}} \!%2B\! \omega_\text{syn} \cdot \underbrace{\sigma(w^{(i)})}_{\substack{\text{number of} \\ \text{synonyms}}} \!%2B\! \omega_\text{misp} \cdot \underbrace{\mu(w^{(i)})}_{\substack{\text{number of}\\ \text{possible} \\ \text{misspellings}}} \!%2B\! \underbrace{\varsigma_f}_{\substack{\text{smoothing}\\ \text{factor}}} ">
-
-
-
-<img src="https://render.githubusercontent.com/render/math?math=w^{(i)}_\text{score}=\frac{
- \omega_\text{len} \cdot  \overbrace{\lambda(w^{(i)})}^{\substack{\text{length \
-of}\\ \text{the word}}}
+<img src="https://render.githubusercontent.com/render/math?math={word}^{(i)}_\text{score}=\frac{
+ \omega_\text{len} \cdot  \lambda({word}^{(i)})
 \!%2B\!
-\omega_\text{misp} \cdot \overbrace{\mu(w^{(i)})}^{\substack{\text{number of}\\\
- \text{possible} \\ \text{misspellings}}}
+\omega_\text{misp} \cdot \mu({word}^{(i)})
 }
-{\omega_\text{syn} \cdot \underbrace{\sigma(w^{(i)})}_{\substack{\text{number o\
-f}\\ \text{synonyms}}}
+{\omega_\text{syn} \cdot \sigma({word}^{(i)})
 \!%2B\!
- \underbrace{\varsigma_f}_{\substack{\text{smoothing} \\ \text{factor}}}}">
+\varsigma_f}">
           
-where the <img src="https://render.githubusercontent.com/render/math?math=\varsigma_f"> parameter is necessary 
-in the case a particular word has neither synonyms nor misspellings available in the statistics dataset.
+where :
+- the smoothing factor <img src="https://render.githubusercontent.com/render/math?math=\varsigma_f"> is necessary in the case a particular word has neither synonyms nor misspellings available in the statistics dataset;
+- <img src="https://render.githubusercontent.com/render/math?math=\lambda({word}^{(i)})"> returns the length of the word;
+- <img src="https://render.githubusercontent.com/render/math?math=\lambda({word}^{(i)})"> returns the number of synonyms for the given word;
+- <img src="https://render.githubusercontent.com/render/math?math=\sigma({word}^{(i)})"> returns the number of possible misspellings for the given word;
+
+For every message <img src="https://render.githubusercontent.com/render/math?math=\mathcal{M}_i"> in the dataset, the score <img src="https://render.githubusercontent.com/render/math?math=\psi_{l_i}"> is then computed as the sum of its words' score
+
+<img src="https://render.githubusercontent.com/render/math?math=\psi_{l_i}=\sum_{{word}_j  \in  \mathcal{M}_i.split()} {word}^{(j)}_\text{score}">
+
+and then normalized over all the lines' scores.
+
+
+The network deals with the probabilities of switching from each source message \
+<img src="https://render.githubusercontent.com/render/math?math=\mathcal{M}_s"> to every destination message <img src="https://render.githubusercontent.com/render/math?math=\mathcal{M}_d">. In this regard, a <img src="https://render.githubusercontent.com/render/math?math=\textit{switch}_\text{score}"> for each couple of lines is calculated as the degree of similarity between the Italian translation of the respective messages
+
+<img src="https://render.githubusercontent.com/render/math?math=\textit{switch}_\text{score}^{\mathcal{M}_s \rightarrow \mathcal{M}_d}= \psi_{\mathcal{M}_s} \ast \underbrace{\theta_{\mathcal{M}_s \rightarrow \mathcal{M}_d}}_{\substack{\text{translation}\\ \text{score}}}">
+
+where the translation score <img src="https://render.githubusercontent.com/render/math?math=\theta_{\mathcal{M}_s \rightarrow \mathcal{M}_d}">
+keeps track of the number of words the two sentences share. As before, the latter score is normalized over the data so as to obtain a probabilistic measure.
+
+The final *switching score* for each available message <img src="https://render.githubusercontent.com/render/math?math=\mathcal{M}_i"> is then computed as
+
+<img src="https://render.githubusercontent.com/render/math?math=\omega_i={avg}_{batch} \left ( \textit{switch}_\text{score}^{\mathcal{M}_i \rig\
+htarrow \mathcal{M}_d} \right )">
+
+<img src="https://render.githubusercontent.com/render/math?math=\text{with} \mathcal{M}_d \in \textit{df.sample(n=batch\_dim, replace=F\
+alse)}">
+
+where the "*sample*" function return a random set of size *batch_dim* of different messages <img src="https://render.githubusercontent.com/render/math?math=\mathcal{M}_d"> from the dataset *df* that are used to compute a statistically consistent average of the *switching score* for the particular source message.
+
+
+Regarding the noise condition along the communication path, the model is meant as a sort of transition system where the noise level of the previous endpoint, expressed in terms of BER, affects the clearness of the communication between the next pair of players. To model the likelihood of occurrence of an error, the Poisson distribution is used to express how many hops, in our case, how many message exchanges, are necessary to expect an error to verify.
+ *here figure*
+
+
+Given such distributions, the noise level can either remain the same, improve or get worse according to the transition diagram below.
+*here figure*
+
+
+The way BER levels affect the switching probability of lines is finally computed as an exponential distribution.  As already mentioned, we expect to witness an error in a fewer number of steps as the noise condition worsens.  Appropriately setting the value of <img src="https://render.githubusercontent.com/render/math?math=\lambda_x"> to decrease as the <img src="https://render.githubusercontent.com/render/math?math={BER_x}"> level grows, the final probability <img src="https://render.githubusercontent.com/render/math?math=p^{(i)}_{\hat{x}}"> of getting an error for a message <img src="https://render.githubusercontent.com/render/math?math=\mathcal{M}_m"> with noise condition <img src="https://render.githubusercontent.com/render/math?math={BER}_{\hat{x}}"> is modelled as
+
+<img src="https://render.githubusercontent.com/render/math?math=p^{(m)}_{\hat{x}} = 1 - \beta \cdot \underbrace{F_{\lambda_{\hat{x}}}(1)}_{1-e^{-\lambda_{\hat{x}}}}">
+
+where the cumulative exponential distribution <img src="https://render.githubusercontent.com/render/math?math=F_{\lambda_{\hat{x}}}(1)">, which describes the likelihood of a bit flipping in a single message exchange, is weighted by <img src="https://render.githubusercontent.com/render/math?math=\beta">, whose value changes according to the chosen game modality:
+- *hardcore* modality:
+<img src="https://render.githubusercontent.com/render/math?math=\beta=\omega_{m} \ast \omega_{d}">, namely the probability of switching from $\mathcal{M}_m$ to every other message <img src="https://render.githubusercontent.com/render/math?math=\mathcal{M}_d">;
+
+- *survivability* modality:
+<img src="https://render.githubusercontent.com/render/math?math=\beta=avg(\omega_i)">,
+being <img src="https://render.githubusercontent.com/render/math?math=avg(\cdot)"> the average score of all the lines in the dataset;
+
+- *flat* modality:
+<img src="https://render.githubusercontent.com/render/math?math=\beta=\frac{\omega_m + avg(\omega_i)}{\sum_{i \in df} \omega_i}">,
+being <img src="https://render.githubusercontent.com/render/math?math=avg(\cdot)"> the average score of all the lines in the dataset;
+
+
+The measure <img src="https://render.githubusercontent.com/render/math?math=p_k^{(m)}"> represents thus the probability of success for the message <img src="https://render.githubusercontent.com/render/math?math=\mathcal{M}_m"> under noise condition <img src="https://render.githubusercontent.com/render/math?math={BER}_k">.
+
+
+To conclude, the Bit Error Rate levels' probability depending on the values of the telematic parameter above mentioned, are taken from the paper [1].
+
+
 
 
