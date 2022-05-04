@@ -70,34 +70,23 @@ after a misspelling, so the lower the switching score
 
 Each word $w^{(i)}$ is thus associated with a score $w^{(i)}_\text{score}$
 
-$
-w^{(i)}_\text{score}=\frac{
- \omega_\text{len} \cdot \lambda(w^{(i)})+
-\omega_\text{misp} \cdot \mu(w^{(i)})
+<img src="https://render.githubusercontent.com/render/math?math=w^{(i)}_\text{score}=\omega_\text{len} \cdot \underbrace{\lambda(w^{(i)})}_{\substack{ \text{length of} \\ \text{word}}} \!%2B\! \omega_\text{syn} \cdot \underbrace{\sigma(w^{(i)})}_{\substack{\text{number of} \\ \text{synonyms}}} \!%2B\! \omega_\text{misp} \cdot \underbrace{\mu(w^{(i)})}_{\substack{\text{number of}\\ \text{possible} \\ \text{misspellings}}} \!%2B\! \underbrace{\varsigma_f}_{\substack{\text{smoothing}\\ \text{factor}}} ">
+
+
+
+<img src="https://render.githubusercontent.com/render/math?math=w^{(i)}_\text{score}=\frac{
+ \omega_\text{len} \cdot  \overbrace{\lambda(w^{(i)})}^{\substack{\text{length \
+of}\\ \text{the word}}}
+\!%2B\!
+\omega_\text{misp} \cdot \overbrace{\mu(w^{(i)})}^{\substack{\text{number of}\\\
+ \text{possible} \\ \text{misspellings}}}
 }
-{\omega_\text{syn} \cdot \sigma(w^{(i)})+
-\varsigma_f}
-$
+{\omega_\text{syn} \cdot \underbrace{\sigma(w^{(i)})}_{\substack{\text{number o\
+f}\\ \text{synonyms}}}
+\!%2B\!
+ \underbrace{\varsigma_f}_{\substack{\text{smoothing} \\ \text{factor}}}}">
           
-where:
-- $\varsigma_f$ is a smoothing factor necessary in the case a particular word has neither synonyms nor misspellings available in the statistics dataset;
-- $\lambda(w^{(i)})$ is the length of the word $w^{(i)}$;
-- $\mu(w^{(i)})$ is the number of misspellings of $w^{(i)}$;
-- $\sigma(w^{(i)})$ is the number of synonyms of $w^{(i)}$;
-
-
-
-For every line $l_i$ in the dataset, the score $\psi_{l_i}$ is then computed as the sum of its words' score
-$
-\psi_{l_i}=\sum_{w_i \; \in \; l_i.split()} w^{(i)}_\text{score}
-$
-and then normalized over all the lines' scores.
-
-
-At each endpoint, namely every time the message reaches a new player, the probability
-$
-\textit{switch}_\text{score}^{(source) \rightarrow (dest)}= \psi_{(source)} \ast \underbrace{\theta_{(source) \rightarrow (dest)}}_{\substack{\text{translation}\\ \text{score}}}
-$
-where the translation score is also computed, whereby two different line have more probability of switching according to the number of Italian words they have in common. As before, the latter score is normalized over all data so as to obtain a probabilistic measure.
+where the <img src="https://render.githubusercontent.com/render/math?math=\varsigma_f"> parameter is necessary 
+in the case a particular word has neither synonyms nor misspellings available in the statistics dataset.
 
 
