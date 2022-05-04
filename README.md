@@ -1,6 +1,9 @@
 # WeWereOnABreak
 An implementation of the "Chinese whispers" game with a Bayesian Network.
 
+![Alt text](plots/weWereOnABreak_Logo.jpg?raw=true "Logo")
+
+
 ## Abstract
 This project aims at exploiting the features and the strengths of Bayesian Networks for the implementation of the "Chinese whisperers" game. The presented
 model allows us to determine whether the original message given as input goes through some changes due to erroneous word-of-mouth where the presence of noise
@@ -103,11 +106,11 @@ where the "*sample*" function return a random set of size *batch_dim* of differe
 
 
 Regarding the noise condition along the communication path, the model is meant as a sort of transition system where the noise level of the previous endpoint, expressed in terms of BER, affects the clearness of the communication between the next pair of players. To model the likelihood of occurrence of an error, the Poisson distribution is used to express how many hops, in our case, how many message exchanges, are necessary to expect an error to verify.
-![Alt text](plots/ber_dist.png?raw=true "Title")
+![Alt text](plots/ber_dist.png?raw=true "BER distributions")
 
 
 Given such distributions, the noise level can either remain the same, improve or get worse according to the transition diagram below.
-![Alt text](plots/BER_friends.png?raw=true "Title")
+![Alt text](plots/BER_friends.png?raw=true "BER Transition State Diagram")
 
 
 The way BER levels affect the switching probability of lines is finally computed as an exponential distribution.  As already mentioned, we expect to witness an error in a fewer number of steps as the noise condition worsens.  Appropriately setting the value of <img src="https://render.githubusercontent.com/render/math?math=\lambda_x"> to decrease as the <img src="https://render.githubusercontent.com/render/math?math={BER_x}"> level grows, the final probability <img src="https://render.githubusercontent.com/render/math?math=p^{(i)}_{\hat{x}}"> of getting an error for a message <img src="https://render.githubusercontent.com/render/math?math=\mathcal{M}_m"> with noise condition <img src="https://render.githubusercontent.com/render/math?math={BER}_{\hat{x}}"> is modelled as
