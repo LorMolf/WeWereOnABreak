@@ -103,11 +103,11 @@ where the "*sample*" function return a random set of size *batch_dim* of differe
 
 
 Regarding the noise condition along the communication path, the model is meant as a sort of transition system where the noise level of the previous endpoint, expressed in terms of BER, affects the clearness of the communication between the next pair of players. To model the likelihood of occurrence of an error, the Poisson distribution is used to express how many hops, in our case, how many message exchanges, are necessary to expect an error to verify.
- *here figure*
+![Alt text](plots/ber_dist.png?raw=true "Title")
 
 
 Given such distributions, the noise level can either remain the same, improve or get worse according to the transition diagram below.
-*here figure*
+![Alt text](plots/BER_friends.png?raw=true "Title")
 
 
 The way BER levels affect the switching probability of lines is finally computed as an exponential distribution.  As already mentioned, we expect to witness an error in a fewer number of steps as the noise condition worsens.  Appropriately setting the value of <img src="https://render.githubusercontent.com/render/math?math=\lambda_x"> to decrease as the <img src="https://render.githubusercontent.com/render/math?math={BER_x}"> level grows, the final probability <img src="https://render.githubusercontent.com/render/math?math=p^{(i)}_{\hat{x}}"> of getting an error for a message <img src="https://render.githubusercontent.com/render/math?math=\mathcal{M}_m"> with noise condition <img src="https://render.githubusercontent.com/render/math?math={BER}_{\hat{x}}"> is modelled as
