@@ -135,6 +135,65 @@ The measure <img src="https://render.githubusercontent.com/render/math?math=p_k^
 
 To conclude, the Bit Error Rate levels' probability depending on the values of the telematic parameter above mentioned, are taken from the paper [1].
 
+## 3. Bayesian Network's structure}
+The Bayesian Network structure is built to satisfy every modality of the game. In particular, the relations between the nodes are the same whilst the condition probability tables change to meet each modality's needs.
 
 
+The Network's structure is meant to represent as faithfully as possible how players line up to play the game. Since we want to implement an acyclic network, we shall consider the last node of the chain to be a duplicate of the input one. Questioning whether the original message has remained the same during the game, here is translated into two different queries according to the chosen modality:
+-  flat and survivability node: given as input a message, check whether each player has returned the same message received as input
+- hardcore mode: check whether the line returned by the last node is the same as the original one
+
+
+In the former case, the success of each message exchange is measured as a boolean variable. Querying the network about the probability of success of the node $i$ means asking whether the message the player $i$ has received as input is the same he/she passes forward. So, to obtain information about how probable it is to get the same message at the end of the chain, one has to query the probability of all the nodes to succeed.
+
+
+In the hardcore mode, we can only directly check the output of the last node. In this type of structure, thanks to the CPDs this particular modality implements, we could also observe a line changing during the path and then turning back to the source one. This modality is indeed a more powerful and expressive tool, which requires though, as mentioned above, to constrain the number $n$ of possible line, being the CPD cardinality of 
+<img src="https://render.githubusercontent.com/render/math?math=n \times n">, net of the presence of the noise variable.
+
+
+Although the three modalities have these different approaches, the network's backbone is the same. Therefore, each player is represented as a node whose parents are the previous player and the current noise condition. The latter factor is expressed itself as a connected chain of nodes where each of them represents the noise condition that will characterize the communication path between its child player node and the next one. 
+
+
+The structure of our Bayesian Network is shown in figure \ref{fig:bn_struct}, wherein players are encoded as nodes named <img src="https://render.githubusercontent.com/render/math?math=\textit{DECODER}_x">, whilst noise nodes <img src="https://render.githubusercontent.com/render/math?math=\textit{BER}_n"> are named after the scale the range in, and whose numeration refers to which path they affect. Finally, the *EbN0*, *C/I* and *Phi* nodes are the implementations of the above disturbance factors, while the so-called *SOURCE* handle the choice of the original message. In the queries shown below, the latter node shall always be used as an evidence parameter.
+
+As the last *DECODER* node is s way to represent the *SOURCE* node in order to avoid cyclicity, implementing the game for $n$ players requires $n+1$ nodes to be used: $n$ *DECODER*s plus the *SOURCE* node.
+
+<img src="plots/BN_friends.png" width="350"/>
+ 
+As the BERs' CPD is a trivial implementation of the transition probabilities shown before, let us focus on the player's related nodes and how their structure changes according to the chosen game modality.
+
+
+Note that, hereinafter we shall neglect the presence of *BER* nodes among the parenthood relationship with the other nodes. Just consider the CPDs shown below as a reduced form whose cardinality must be enlarged by a factor 5 (the levels BER ranges in), simply multiplying each cell in the tables below by the correspondent probability measure according to the distribution showed in figure \ref{fig:ber_distr}.
+
+
+- As far as the *survivability* modality is concerned, the *SOURCE* node has a dummy CPD composed as an array of cardinality equal to the dataset dimension, i.e., equal to the number of all available messages. Since all queries shall have as evidence the original message, their probability values are taken randomly.
+The *DECODER* nodes are thus meant to return a boolean value to express whether the input message remained or not unchanged after the last communication hop. For this reason, given the way the *SOURCE* is made, the first *DECODER*'s CPD is different from the next ones in terms of the cardinality of their parent nodes.All the other <img src="https://render.githubusercontent.com/render/math?math={DECODER}_k">, with <img src="https://render.githubusercontent.com/render/math?math=k>0">, have instead a reduced cardinality where the probability of success is computed as the average over all the messages in the dataset, being the knowledge of the current input message, and thus of its score, not available in this type of Network's structure.
+
+
+- The *flat* modality has been conceived as an attempt to include the evidence about the input message automatically in the queries, without stating it explicitly. For this purpose, the CPDs are dynamically recomputed each time a new message is given as input. 
+Being the *SOURCE* node a "boolean variable", all *DECODER*s share the same CPD, as they have the same cardinality, which is the same used for the <img src="https://render.githubusercontent.com/render/math?math={DECODER}_k"> with <img src="https://render.githubusercontent.com/render/math?math=k>1"> in the the \textit{survivability} mode.
+
+
+- The most complex set of nodes are those implemented in the \textit{hardcore} modality, as we wish to keep track of the possible switches. In practice, since the number of instances would become unmanageable as the dataset's size grows, the  \textit{hardcore modality} can be used only on a smaller set of possible messages from the original set. where data is already normalized to make their sum unitary.
+
+## 4. Queries and performances}
+
+As already mentioned, two possible queries for checking the success of the whole message exchange process can be made depending on the modality the player has chosen. The \textit{hardcore} modality, leveraging on its higher expressiveness, make it possible to analyse how often and to which particular other sentences the input message changes into. On the other hand, the number of possible messages must be accounted for, as the cardinalities grow in a quadratic fashion with the dimension of the dataset, which also includes a narrowing of all probabilities.
+
+The plot below shows how the probability of success of the input line and the most probable output from the network behave as the dimension of the message dataset increases.
+
+<img src="plots/harcore.png" width="350"/>
+
+The latter behaviour is particularly interesting if we think our game to be played by an extremely high number of players. A particular message could indeed be prone to undergo a misspelling error but, due to the number and type of its words' synonyms, may come back to the original form after a certain number of hops.
+
+Using a more simple structure for performance reasons, we can observe a convergence in the probability of success for any noise condition as the network's length increases, i.e., the more players join the game.
+
+<img src="plots/surv_v_pretty.png" width="350"/>
+
+This trend can be explained in different ways:
+- as the network is highly connected, namely since all probability values multiply with each other, we might expect these types of floating-point measures to overflow, ending up in a kind of plateau;
+- ...
+
+The differences between the two approaches are well known. While the precision of exact queries can be reached by enlarging the number of samples, the computational cost may diverge for high-dimensional networks in the case of exact methods. Our model is thought to be extendable to a theoretically undefined number of players, which could lead to an explosion in the time performances, especially in the case of the absence of evidence nodes in queries. Let us take the cheapest modality in terms of space occupancy of its CPD tables and show the performances of the two different methods as the number of players increases.
+<img src="plots/flat.png" width="250"/>
 
