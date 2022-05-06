@@ -182,18 +182,19 @@ As already mentioned, two possible queries for checking the success of the whole
 
 The plot below shows how the probability of success of the input line and the most probable output from the network behave as the dimension of the message dataset increases.
 
-<img src="plots/harcore.png" width="350"/>
+<img src="plots/harcore.png" width="500"/>
 
 The latter behaviour is particularly interesting if we think our game to be played by an extremely high number of players. A particular message could indeed be prone to undergo a misspelling error but, due to the number and type of its words' synonyms, may come back to the original form after a certain number of hops.
 
 Using a more simple structure for performance reasons, we can observe a convergence in the probability of success for any noise condition as the network's length increases, i.e., the more players join the game.
 
-<img src="plots/surv_v_pretty.png" width="350"/>
+<img src="plots/surv_v_pretty.png" width="500"/>
 
 This trend can be explained in different ways:
 - as the network is highly connected, namely since all probability values multiply with each other, we might expect these types of floating-point measures to overflow, ending up in a kind of plateau;
 - ...
 
 The differences between the two approaches are well known. While the precision of exact queries can be reached by enlarging the number of samples, the computational cost may diverge for high-dimensional networks in the case of exact methods. Our model is thought to be extendable to a theoretically undefined number of players, which could lead to an explosion in the time performances, especially in the case of the absence of evidence nodes in queries. Let us take the cheapest modality in terms of space occupancy of its CPD tables and show the performances of the two different methods as the number of players increases.
-<img src="plots/flat.png" width="250"/>
+
+<img src="plots/flat.png" width="450"/>
 
