@@ -9,6 +9,11 @@ from .score import Scorer
 from sklearn.preprocessing import  MinMaxScaler
 from itertools import product
 
+# change working directory to easily access to data store in /data folder
+# ../src --> ../
+import os
+os.chdir('../')
+
 
 class Model():
     """
@@ -355,7 +360,7 @@ class Model():
         return df
 
 
-    def getNoisySwitchScore_survivability(self) :
+    def getNoisySwitchScore_survivability(self, num_lines = -1) :
         """
         According to the Switching Scores datasets this function
         returns the probability to experience an error as the 
@@ -374,6 +379,10 @@ class Model():
         It returns the CPD of both DECODER_0 and DECODER_{0+k}
         which have different cardinalities.
 
+        Args:
+            - num_lines : (int) the number of (worst) lines to take from the
+                            dataset - if -1, the whole df is considered
+
         Returns:
             (DEC_0_cpd, DEC_0+k_cpd) : tuple of lists
         """
@@ -382,7 +391,11 @@ class Model():
         _lambda=[.3,.7,1.2,1.5,1.8]  #lambda equals the BER level
         _exp_distr=[1-exp(-ll) for ll in _lambda]
 
-        df_0=pd.DataFrame(self.switchScore_df['SWITCH_PROB'])   # base dataframe for DECODER_0
+        if num_lines < 0: # consider the whole dataset
+            df_0=pd.DataFrame(self.switchScore_df['SWITCH_PROB'])   # base dataframe for DECODER_0
+        else:
+            df_0=pd.DataFrame(self.switchScore_df['SWITCH_PROB']).sort_values(by=['SWITCH_PROB'],ascending=False).iloc[:num_lines] # take the worst scoring line
+
         
         #a=self.switchScore_df['SWITCH_PROB'].mean() #average switching score over the whole dataset
         max=self.switchScore_df['SWITCH_PROB'].max()

@@ -41,7 +41,7 @@ class TheQueryMen():
 
     """
 	
-    def __init__(self,numOfEndPoints,modality,num_lines=10) :
+    def __init__(self,numOfEndPoints,modality,num_lines=-1) :
         """
         Constructor of the TheQueryMen class.
 
@@ -69,12 +69,12 @@ class TheQueryMen():
         if modality == "flat":
             self.__num_lines=len(self.model.query_map.keys())
         elif modality == "survivability":
-            self.__num_lines=len(self.model.query_map.keys())
+            self.__num_lines=num_lines if num_lines > 0 else len(self.model.query_map.keys())
             print("Building the Bayesian Network...")
             self.BN=self.__buildNetwork()
             print("The BN is ready to be queried !")
         elif modality =="hardcore":
-            self.__num_lines=num_lines # number of worst lines
+            self.__num_lines=num_lines if num_lines > 0 else 15# number of worst lines
             print("Building the Bayesian Network...")
             self.BN=self.__buildNetwork()
             print("The BN is ready to be queried !")
@@ -101,19 +101,18 @@ class TheQueryMen():
         - id_line: (int) identifier
         - str_line: (str) line
         """
-        if self.__modality == 'flat':        
-            if input_line is None:
-                self.__input_line, line = self.model.getRandomLine()
-                print(f"Source line: {line}")
-            else:
-                self.__input_line=self.model.getId(input_line)
-                line=input_line
+        if input_line is None:
+            self.__input_line, line = self.model.getRandomLine()
+            print(f"Source line: {line}")
+        else:
+            self.__input_line=self.model.getId(input_line)
+            line=input_line
 
+
+        if self.__modality == 'flat':       
             print("Building the Bayesian Network...")
             self.BN=self.__buildNetwork()
             print("The BN is ready to be queried !")
-        else:
-            self.__input_line, line = self.model.getRandomLine()
 
         return self.__input_line, line
 
@@ -293,7 +292,7 @@ class TheQueryMen():
         return gibbs.sample(size=num_samples)
         
 
-    def makeApproximateQuery(self, variables, evidence=None, sampling_type='rej', num_samples=1000) -> dict:
+    def makeApproximateQuery(self, variables : list = [], evidence : dict = {}, sampling_type='rej', num_samples=1000) -> dict:
         """
         Makes an approximate query according to the game mode. If no evidence
         is given in input, this function returns the distribution of `variables` 
@@ -341,7 +340,7 @@ class TheQueryMen():
 
         return vals
 
-    def makeExactQuery(self,variables : list,evidence : dict, printCPD : bool = False) -> dict:
+    def makeExactQuery(self,variables : list = [], evidence : dict = {}, printCPD=False) -> dict:
         """
         Performs the query given as input with the Variable Elimination
         technique.
@@ -384,7 +383,7 @@ class TheQueryMen():
         return vals
 
     
-    def alwaysUnchanged(self, evidence : dict = None, printCPD : bool = False) -> dict:
+    def alwaysUnchanged(self, evidence : dict = {}, printCPD : bool = False) -> dict:
         """
         Computes the probability of keeping always unchanged the
         input line along every message exchange.
