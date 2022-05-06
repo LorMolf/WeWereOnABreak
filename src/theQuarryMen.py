@@ -422,7 +422,7 @@ class TheQueryMen():
             if printCPD: print(distr)
 
         else:
-            print(vals[0]) # distr.values[0] stores the probability that all the input variables (variables) has value 0, i.e., they succeeded
+            print(np.array(vals).flatten()[0]) # distr.values[0] stores the probability that all the input variables (variables) has value 0, i.e., they succeeded
         
         return vals
 
