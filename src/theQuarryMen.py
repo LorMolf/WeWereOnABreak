@@ -396,7 +396,10 @@ class TheQueryMen():
         Return:
             - distribution: (dict) probability distribution of the query's outcome        
         """
-        variables=['SOURCE']
+        variables=[]
+        
+        if self.__modality == 'flat':
+            variables.append('SOURCE')
 
         for i in range(self.__numOfEndPoints+1):
             variables.append(f'DECODER_{i}')
