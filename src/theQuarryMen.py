@@ -344,7 +344,7 @@ class TheQueryMen():
 
         return vals
 
-    def makeExactQuery(self,variables : list = [], evidence : dict = {}, printCPD=False) -> dict:
+    def makeExactQuery(self,variables : list = [], evidence : dict = {}, eliminationOrder : list = 'MinFill', printCPD=False) -> dict:
         """
         Performs the query given as input with the Variable Elimination
         technique.
@@ -359,13 +359,14 @@ class TheQueryMen():
             - variables: (list) list of variables over which we want to compute the max-marginal
             - evidence: (dist) dictionary of variables observed
             - printCPD: (bool) print the output CPD
+            - eliminationOrder: (list) order of elimination for the Variable Elimination order 
 
         Return:
             - distribution: (dict) probability distribution of the query's outcome
         """
 
         inference=VariableElimination(self.BN)      
-        distr=inference.query(variables,evidence=evidence)
+        distr=inference.query(variables,evidence=evidence, elimination_order=eliminationOrder)
 
         vals=distr.values
         
@@ -387,7 +388,7 @@ class TheQueryMen():
         return vals
 
     
-    def alwaysUnchanged(self, evidence : dict = {}, printCPD : bool = False) -> dict:
+    def alwaysUnchanged(self, evidence : dict = {}, eliminationOrder : list = 'MinFill', printCPD : bool = False) -> dict:
         """
         Computes the probability of keeping always unchanged the
         input line along every message exchange.
@@ -395,6 +396,7 @@ class TheQueryMen():
         Args:
             - evidence: (dist) dictionary of variables observed
             - printCPD: (bool) print the output CPD
+            - eliminationOrder: (list) order of elimination for the Variable Elimination order 
 
         Return:
             - distribution: (dict) probability distribution of the query's outcome        
@@ -408,7 +410,7 @@ class TheQueryMen():
             variables.append(f'DECODER_{i}')
 
         inference=VariableElimination(self.BN)      
-        distr=inference.query(variables,evidence=evidence)
+        distr=inference.query(variables,evidence=evidence, elimination_order=eliminationOrder)
 
         vals=distr.values
         
