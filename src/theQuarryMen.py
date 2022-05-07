@@ -41,15 +41,16 @@ class TheQueryMen():
 
     """
 	
-    def __init__(self,numOfPlayers=3,modality='flat',num_lines=-1) :
+    def __init__(self,numOfPlayers : int = 3,modality : str = 'flat', num_lines :int = -1,noiseParamsDistr : list = [.5,.5,.5]) :
         """
         Constructor of the TheQueryMen class.
 
         Args:
-            - numOfPlayers: number of players
-            - modality: game modalities (flat, survivability, hardcore)
-            - num_lines : number of lines of the dataset to load. It has to be specified only
-                          if the hardcore modality is chosen.
+            - numOfPlayers:         (int) number of players
+            - modality:             (str) game modalities (flat, survivability, hardcore)
+            - num_lines :           (int) number of lines of the dataset to load. It has to be specified only
+                                    if the hardcore modality is chosen.
+            - noiseParamsDistr:     (list) occurrence probability of the channel noise parameters [EbN0, C/I, Phi] 
         
         """
         self.__numOfEndPoints=numOfPlayers
@@ -62,6 +63,8 @@ class TheQueryMen():
 
         self.statDf=None
         self.switchDf=None
+
+        self.__noiseParamsDistr=noiseParamsDistr
 
         self.model=Model(computeScores=False)
         print("STATISTICS LOADED !")  
@@ -154,6 +157,7 @@ class TheQueryMen():
         
         # to change with suitable distribution
         # ['EbNO','C/I','Phi'] CPDs
+        eb,ci,ph=self.__noiseParamsDistr
         ebno_cpd=TabularCPD('EbNO',2,[[.5],[.5]])
         c_i_cpd=TabularCPD('C/I',2,[[.5],[.5]])
         phi_cpd=TabularCPD('Phi',2,[[.5],[.5]])
