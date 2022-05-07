@@ -158,9 +158,9 @@ class TheQueryMen():
         # to change with suitable distribution
         # ['EbNO','C/I','Phi'] CPDs
         eb,ci,ph=self.__noiseParamsDistr
-        ebno_cpd=TabularCPD('EbNO',2,[[.5],[.5]])
-        c_i_cpd=TabularCPD('C/I',2,[[.5],[.5]])
-        phi_cpd=TabularCPD('Phi',2,[[.5],[.5]])
+        ebno_cpd=TabularCPD('EbNO',2,[[eb],[1.0-eb]])
+        c_i_cpd=TabularCPD('C/I',2,[[ci],[1.0-ci]])
+        phi_cpd=TabularCPD('Phi',2,[[ph],[1.0-ph]])
         bn_model.add_cpds(ebno_cpd,c_i_cpd,phi_cpd)
 
         # ['EbNO','C/I','Phi'] --> BER_0
