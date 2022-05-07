@@ -41,18 +41,18 @@ class TheQueryMen():
 
     """
 	
-    def __init__(self,numOfEndPoints,modality,num_lines=-1) :
+    def __init__(self,numOfPlayers=3,modality='flat',num_lines=-1) :
         """
         Constructor of the TheQueryMen class.
 
         Args:
-            - numOfEndPoints: number of players
+            - numOfPlayers: number of players
             - modality: game modalities (flat, survivability, hardcore)
             - num_lines : number of lines of the dataset to load. It has to be specified only
                           if the hardcore modality is chosen.
         
         """
-        self.__numOfEndPoints=numOfEndPoints
+        self.__numOfEndPoints=numOfPlayers
         self.__modality=modality
         self.__input_line=None
         self.__num_lines=0
