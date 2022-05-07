@@ -344,7 +344,7 @@ class TheQueryMen():
 
         return vals
 
-    def makeExactQuery(self,variables : list = [], evidence : dict = {}, eliminationOrder : list = 'MinFill', printCPD=False) -> dict:
+    def makeExactQuery(self,variables : list = [], evidence : dict = {}, eliminationOrder : list = [], printCPD=False) -> dict:
         """
         Performs the query given as input with the Variable Elimination
         technique.
@@ -366,7 +366,11 @@ class TheQueryMen():
         """
 
         inference=VariableElimination(self.BN)      
-        distr=inference.query(variables,evidence=evidence, elimination_order=eliminationOrder)
+
+        if eliminationOrder == []:
+          distr=inference.query(variables,evidence=evidence)
+        else:
+          distr=inference.query(variables,evidence=evidence,elimination_order=eliminationOrder)
 
         vals=distr.values
         
@@ -378,17 +382,15 @@ class TheQueryMen():
             out_line, out_prob=self.__getMostProbableOutput(vals)
             t = Texttable()
             t.add_rows([[f'INPUT (PROB. {input_prob})', f'MOST PROBABLE OUTPUT (PROB. {out_prob})'], [input_line, out_line]])
-            print(t.draw())
+            print(t.draw())          
             
-            if printCPD: print(distr)
-
-        else:
+        if printCPD: 
             print(distr)
         
         return vals
 
     
-    def alwaysUnchanged(self, evidence : dict = {}, eliminationOrder : list = 'MinFill', printCPD : bool = False) -> dict:
+    def alwaysUnchanged(self, evidence : dict = {}, eliminationOrder : list = [], printCPD : bool = False) -> dict:
         """
         Computes the probability of keeping always unchanged the
         input line along every message exchange.
@@ -410,7 +412,11 @@ class TheQueryMen():
             variables.append(f'DECODER_{i}')
 
         inference=VariableElimination(self.BN)      
-        distr=inference.query(variables,evidence=evidence, elimination_order=eliminationOrder)
+        
+        if eliminationOrder == []:
+          distr=inference.query(variables,evidence=evidence)
+        else:
+          distr=inference.query(variables,evidence=evidence,elimination_order=eliminationOrder)
 
         vals=distr.values
         
@@ -426,7 +432,7 @@ class TheQueryMen():
             
             if printCPD: print(distr)
 
-        else:
+        elif printCPD:
             print(np.array(vals).flatten()[0]) # distr.values[0] stores the probability that all the input variables (variables) has value 0, i.e., they succeeded
         
         return vals
