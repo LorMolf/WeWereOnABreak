@@ -373,6 +373,10 @@ class TheQueryMen():
         Computes the probability of keeping always unchanged the
         input line along every message exchange.
 
+        If you have chosen the 'hardcore' or the 'survivability' mode, 
+        you must include the identifier of the input message in the 
+        evidence. It is not necessary for the 'flat' modality.
+
         Args:
             - evidence: (dist) dictionary of variables observed
             - printCPD: (bool) print the output CPD
@@ -396,79 +400,95 @@ class TheQueryMen():
         else:
           distr=inference.query(variables,evidence=evidence,elimination_order=eliminationOrder)
 
-        vals=distr.values
+        vals=np.array(distr.values).flatten()
         
         if self.__modality == "hardcore":
             source=evidence['SOURCE']
 
-            input_line=self.model.getLine(source)
+            res=str("{:.3e}".format(vals[source*self.__num_lines]))
+            neg_res=str("{:.3e}".format(1-vals[source*self.__num_lines]))
+
+            res += " %"
+            neg_res += " %"
+
+            t = Texttable()
+            t.add_rows([['ALWAYS UNCHANGED (0)', 'ALWAYS UNCHANGED (1)'], [res, neg_res]])
+            print(t.draw())
+            
+            if printCPD: 
+                print(distr)
+
+        else:
+
+            res=str("{:.3e}".format(vals[0]))
+            neg_res=str("{:.3e}".format(1-vals[0]))
+
+            res += " %"
+            neg_res += " %"
+
+            t = Texttable()
+            t.add_rows([['ALWAYS UNCHANGED (0)', 'ALWAYS UNCHANGED (1)'], [res, neg_res]])
+            print(t.draw())
+
+            if printCPD:
+                print(distr) # distr.values[0] stores the probability that all the input variables (variables) has value 0, i.e., they succeeded
+        
+        return res
+
+
+    def traceSwitches(self,variables : list = [],evidences : dict = {}) -> dict:
+        """
+        This function, which can be used only in the 'hardcore' mode, compute
+        the given query  P(variables|evidence) with the Variable Elimination
+        algorithm.
+
+        Exploting the structure of the Bayesian network for this modality, all the
+        intermediate results are printed out. For each player, the function returns
+        the probability of success of the original line and the actual most probable 
+        output message.
+
+        Args:
+            - variables:        (list) variables name to get distribution of
+            - evidence:         (dict) variables name given as evidence
+            - printCPD:         (bool) print the output CPD
+
+        Return:
+            - distribution:     (dict) probability distribution of the query's outcome
+        """
+
+        if self.__modality != 'hardcore':
+            print("This function is available for the 'hardcore' modality only !")
+            exit(-1)
+
+        
+        # reset std output to avoid printing the intermediate messages
+        old_stdout = sys.stdout # backup current stdout
+        sys.stdout = open(os.devnull, "w")
+
+        source=evidences['SOURCE']
+        input_line=self.model.getLine(source)
+
+        for n_pl in range(2,self.__numOfEndPoints+1):
+            tmp_model = TheQueryMen(n_pl,modality='hardcore',num_lines=self.__num_lines)
+            tmp_model.generateSource(input_line)
+
+            vals=tmp_model.makeExactQuery([f'DECODER_{n_pl}'],evidences=evidences)
+                    
             input_prob=round(vals[source],3)
             out_line, out_prob=self.__getMostProbableOutput(vals)
             t = Texttable()
             t.add_rows([[f'INPUT (PROB. {input_prob})', f'MOST PROBABLE OUTPUT (PROB. {out_prob})'], [input_line, out_line]])
+            
+            sys.stdout = old_stdout # restore original std output
+            print(f"\n-----------------> PLAYER_{n_pl}")
             print(t.draw())
-            
-            if printCPD: print(distr)
-
-        elif printCPD:
-            print(np.array(vals).flatten()[0]) # distr.values[0] stores the probability that all the input variables (variables) has value 0, i.e., they succeeded
-        
-        return vals
-
-
-        def traceSwitches(self,variables : list = [],evidences : dict = {}) -> dict:
-            """
-            This function, which can be used only in the 'hardcore' mode, compute
-            the given query  P(variables|evidence) with the Variable Elimination
-            algorithm.
-
-            Exploting the structure of the Bayesian network for this modality, all the
-            intermediate results are printed out. For each player, the function returns
-            the probability of success of the original line and the actual most probable 
-            output message.
-
-            Args:
-                - variables:        (list) variables name to get distribution of
-                - evidence:         (dict) variables name given as evidence
-                - printCPD:         (bool) print the output CPD
-
-            Return:
-                - distribution:     (dict) probability distribution of the query's outcome
-            """
-
-            if self.__modality != 'hardcore':
-                print("This function is available for the 'hardcore' modality only !")
-                exit(-1)
-
-            
-            # reset std output to avoid printing the intermediate messages
-            old_stdout = sys.stdout # backup current stdout
             sys.stdout = open(os.devnull, "w")
 
-            source=evidences['SOURCE']
-            input_line=self.model.getLine(source)
-
-            for n_pl in range(2,self.__numOfEndPoints+1):
-                tmp_model = TheQueryMen(n_pl,modality='hardcore',num_lines=self.__num_lines)
-                tmp_model.generateSource(input_line)
-
-                vals=tmp_model.makeExactQuery([f'DECODER_{n_pl}'],evidences=evidences)
-                        
-                input_prob=round(vals[source],3)
-                out_line, out_prob=self.__getMostProbableOutput(vals)
-                t = Texttable()
-                t.add_rows([[f'INPUT (PROB. {input_prob})', f'MOST PROBABLE OUTPUT (PROB. {out_prob})'], [input_line, out_line]])
-                
-                sys.stdout = old_stdout # restore original std output
-                print(f"\n-----------------> PLAYER_{n_pl}")
-                print(t.draw())
-                sys.stdout = open(os.devnull, "w")
 
 
+        sys.stdout = old_stdout # restore original std output
 
-            sys.stdout = old_stdout # restore original std output
-
-            return vals
+        return vals
 
 
 
