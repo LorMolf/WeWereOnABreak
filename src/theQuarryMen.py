@@ -344,7 +344,7 @@ class TheQueryMen():
 
         return distr.values
 
-    def makeExactQuery(self,variables : list = [], evidence : dict = {}, printCPD=False) -> dict:
+    def makeExactQuery(self,variables : list = [], evidence : dict = {}, eliminationOrder : list = [], printCPD=False) -> dict:
         """
         Run the query P(variables|evidence) with the Variable Elimination algorithm.
         If the `printCPD` parameter is set to True then the table with all probabilities
@@ -353,6 +353,7 @@ class TheQueryMen():
         Args:
             - variables:        (list) variables name to get distribution of
             - evidence:         (dict) variables name given as evidence
+            - eliminationOrder: (list) order with which perform the Variable Elimination algorithm
             - printCPD:         (bool) print the output CPD
 
         Return:
@@ -360,7 +361,10 @@ class TheQueryMen():
         """
 
         inference=VariableElimination(self.BN)      
-        distr=inference.query(variables,evidence=evidence)
+        if eliminationOrder == []:
+          distr=inference.query(variables,evidence=evidence)
+        else:
+          distr=inference.query(variables,evidence=evidence,elimination_order=eliminationOrder)
 
         if printCPD:
             print(distr)
