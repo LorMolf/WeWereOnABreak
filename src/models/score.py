@@ -35,7 +35,7 @@ class Scorer():
         self.df_it=dataSet_it
 
 
-    def __retrieveStatData(self, word) -> list[np.float64,np.float64]:
+    def __retrieveStatData(self, word):
         """
         Retrieve data from the dataset for the word given as input.
         It returns a smoothing factor in case of missing values.
