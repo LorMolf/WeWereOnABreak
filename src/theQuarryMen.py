@@ -410,30 +410,31 @@ class TheQueryMen():
         
         if self.__modality == "hardcore":
             source=evidence['SOURCE']
+            res=vals[source*self.__num_lines]
 
-            res=str("{:.3e}".format(vals[source*self.__num_lines]))
-            neg_res=str("{:.3e}".format(1-vals[source*self.__num_lines]))
+            res_str=str("{:.3e}".format(res))
+            neg_res=str("{:.3e}".format(1-res))
 
-            res += " %"
+            res_str += " %"
             neg_res += " %"
 
             t = Texttable()
-            t.add_rows([['ALWAYS UNCHANGED (0)', 'ALWAYS UNCHANGED (1)'], [res, neg_res]])
+            t.add_rows([['ALWAYS UNCHANGED (0)', 'ALWAYS UNCHANGED (1)'], [res_str, neg_res]])
             print(t.draw())
             
             if printCPD: 
                 print(distr)
 
         else:
+            res=vals[0]
+            res=str("{:.3e}".format(res))
+            neg_res=str("{:.3e}".format(1-res))
 
-            res=str("{:.3e}".format(vals[0]))
-            neg_res=str("{:.3e}".format(1-vals[0]))
-
-            res += " %"
+            res_str += " %"
             neg_res += " %"
 
             t = Texttable()
-            t.add_rows([['ALWAYS UNCHANGED (0)', 'ALWAYS UNCHANGED (1)'], [res, neg_res]])
+            t.add_rows([['ALWAYS UNCHANGED (0)', 'ALWAYS UNCHANGED (1)'], [res_str, neg_res]])
             print(t.draw())
 
             if printCPD:
