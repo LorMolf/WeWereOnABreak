@@ -5,8 +5,6 @@ from pgmpy.sampling import GibbsSampling
 from pgmpy.sampling import BayesianModelSampling
 import random as rand
 
-import os, sys
-
 import numpy as np
 from texttable import Texttable
 
@@ -67,6 +65,10 @@ class TheQueryMen():
         self.switchDf=None
 
         self.__noiseParamsDistr=noiseParamsDistr
+
+        if numOfPlayers < 2:
+            print("THERE MUST BE AT LEAST 2 PLAYERS TO PLAY THE GAME !")
+            exit(-1)
 
         self.model=Model(computeScores=False)
         print("STATISTICS LOADED !")  
@@ -464,10 +466,6 @@ class TheQueryMen():
             print("This function is available for the 'hardcore' modality only !")
             exit(-1)
 
-        
-        # reset std output to avoid printing the intermediate messages
-        old_stdout = sys.stdout # backup current stdout
-        sys.stdout = open(os.devnull, "w")
 
         source=evidence['SOURCE']
         input_line=self.model.getLine(source)
@@ -483,14 +481,9 @@ class TheQueryMen():
             t = Texttable()
             t.add_rows([[f'INPUT (PROB. {input_prob})', f'MOST PROBABLE OUTPUT (PROB. {out_prob})'], [input_line, out_line]])
             
-            sys.stdout = old_stdout # restore original std output
             print(f"\n-----------------> PLAYER_{n_pl}")
             print(t.draw())
-            sys.stdout = open(os.devnull, "w")
 
-
-
-        sys.stdout = old_stdout # restore original std output
 
         return vals
 
