@@ -427,7 +427,7 @@ class TheQueryMen():
 
         else:
             res=vals[0]
-            res=str("{:.3e}".format(res))
+            res_str=str("{:.3e}".format(res))
             neg_res=str("{:.3e}".format(1-res))
 
             res_str += " %"
