@@ -135,7 +135,7 @@ The measure <img src="https://render.githubusercontent.com/render/math?math=p_k^
 
 To conclude, the Bit Error Rate levels' probability depending on the values of the telematic parameter above mentioned, are taken from the paper [1].
 
-## 3. Bayesian Network's structure}
+## 3. Bayesian Network's structure
 The Bayesian Network structure is built to satisfy every modality of the game. In particular, the relations between the nodes are the same whilst the condition probability tables change to meet each modality's needs.
 
 
@@ -176,7 +176,7 @@ Being the *SOURCE* node a "boolean variable", all *DECODER*s share the same CPD,
 
 - The most complex set of nodes are those implemented in the \textit{hardcore} modality, as we wish to keep track of the possible switches. In practice, since the number of instances would become unmanageable as the dataset's size grows, the  \textit{hardcore modality} can be used only on a smaller set of possible messages from the original set. where data is already normalized to make their sum unitary.
 
-## 4. Queries and performances}
+## 4. Queries and performances
 
 As already mentioned, two possible queries for checking the success of the whole message exchange process can be made depending on the modality the player has chosen. The \textit{hardcore} modality, leveraging on its higher expressiveness, make it possible to analyse how often and to which particular other sentences the input message changes into. On the other hand, the number of possible messages must be accounted for, as the cardinalities grow in a quadratic fashion with the dimension of the dataset, which also includes a narrowing of all probabilities.
 

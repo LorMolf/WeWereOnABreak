@@ -5,6 +5,8 @@ from pgmpy.sampling import GibbsSampling
 from pgmpy.sampling import BayesianModelSampling
 import random as rand
 
+import os, sys
+
 import numpy as np
 from texttable import Texttable
 
@@ -106,7 +108,7 @@ class TheQueryMen():
         """
         if input_line is None:
             self.__input_line, line = self.model.getRandomLine()
-            print(f"Source line: {line}")
+            print(f"\nSOURCE MESSAGE: {line}\n")
         else:
             self.__input_line=self.model.getId(input_line)
             line=input_line
@@ -280,7 +282,10 @@ class TheQueryMen():
 
     
     def __getMostProbableOutput(self,prob_vals):
-
+        """
+        Print the most probable output message given
+        the probability distribution.
+        """
         most_prob_out_line=np.argmax(prob_vals)
         line=self.model.getLine(most_prob_out_line)
 
@@ -296,7 +301,7 @@ class TheQueryMen():
         return gibbs.sample(size=num_samples)
         
 
-    def makeApproximateQuery(self, variables : list = [], evidence : dict = {}, sampling_type='rej', num_samples=1000) -> dict:
+    def makeApproximateQuery(self, variables : list = [], evidence : dict = {}, sampling_type='rej', num_samples=1000, printCPD=False) -> dict:
         """
         Makes an approximate query according to the game mode. If no evidence
         is given in input, this function returns the distribution of `variables` 
@@ -311,6 +316,7 @@ class TheQueryMen():
             - evidence:         variables name given as evidence
             - sampling_type:    type of sampling method
             - num_samples:      number of samples to draw
+            - printCPD:         (bool) print the output CPD
 
         Return:
             - distribution:     (dict) probability distribution of the query's outcome
@@ -333,61 +339,33 @@ class TheQueryMen():
         else:            
             distr=apprx_inf.query(variables=variables,evidence=evidence,n_samples=num_samples)
             
-        vals=distr.values
-
-        if self.__modality == "hardcore":            
-            source=evidence['SOURCE']
-            print(f"Input line: {vals[source]}")
-            self.__getMostProbableOutput(vals)
-        else:
+        if printCPD:
             print(distr)
 
-        return vals
+        return distr.values
 
-    def makeExactQuery(self,variables : list = [], evidence : dict = {}, eliminationOrder : list = [], printCPD=False) -> dict:
+    def makeExactQuery(self,variables : list = [],evidences : dict = {}, printCPD=False) -> dict:
         """
-        Performs the query given as input with the Variable Elimination
-        technique.
-
-        In the case the "hardcore" modality was selected, setting the
-        parameter `printCPD` to True will make the function print the
-        probability table of the given theory, in addition to the the
-        results about the most probable output line according to the
-        input one and the noise conditions.
+        Run the query P(variables|evidence) with the Variable Elimination algorithm.
+        If the `printCPD` parameter is set to True then the table with all probabilities
+        is printed.
 
         Args:
-            - variables: (list) list of variables over which we want to compute the max-marginal
-            - evidence: (dist) dictionary of variables observed
-            - printCPD: (bool) print the output CPD
-            - eliminationOrder: (list) order of elimination for the Variable Elimination order 
+            - variables:        (list) variables name to get distribution of
+            - evidence:         (dict) variables name given as evidence
+            - printCPD:         (bool) print the output CPD
 
         Return:
-            - distribution: (dict) probability distribution of the query's outcome
+            - distribution:     (dict) probability distribution of the query's outcome
         """
 
         inference=VariableElimination(self.BN)      
+        distr=inference.query(variables,evidence=evidences)
 
-        if eliminationOrder == []:
-          distr=inference.query(variables,evidence=evidence)
-        else:
-          distr=inference.query(variables,evidence=evidence,elimination_order=eliminationOrder)
-
-        vals=distr.values
-        
-        if self.__modality == "hardcore":
-            source=evidence['SOURCE']
-
-            input_line=self.model.getLine(source)
-            input_prob=round(vals[source],3)
-            out_line, out_prob=self.__getMostProbableOutput(vals)
-            t = Texttable()
-            t.add_rows([[f'INPUT (PROB. {input_prob})', f'MOST PROBABLE OUTPUT (PROB. {out_prob})'], [input_line, out_line]])
-            print(t.draw())          
-            
-        if printCPD: 
+        if printCPD:
             print(distr)
         
-        return vals
+        return distr.values
 
     
     def alwaysUnchanged(self, evidence : dict = {}, eliminationOrder : list = [], printCPD : bool = False) -> dict:
@@ -436,6 +414,61 @@ class TheQueryMen():
             print(np.array(vals).flatten()[0]) # distr.values[0] stores the probability that all the input variables (variables) has value 0, i.e., they succeeded
         
         return vals
+
+
+        def traceSwitches(self,variables : list = [],evidences : dict = {}) -> dict:
+            """
+            This function, which can be used only in the 'hardcore' mode, compute
+            the given query  P(variables|evidence) with the Variable Elimination
+            algorithm.
+
+            Exploting the structure of the Bayesian network for this modality, all the
+            intermediate results are printed out. For each player, the function returns
+            the probability of success of the original line and the actual most probable 
+            output message.
+
+            Args:
+                - variables:        (list) variables name to get distribution of
+                - evidence:         (dict) variables name given as evidence
+                - printCPD:         (bool) print the output CPD
+
+            Return:
+                - distribution:     (dict) probability distribution of the query's outcome
+            """
+
+            if self.__modality != 'hardcore':
+                print("This function is available for the 'hardcore' modality only !")
+                exit(-1)
+
+            
+            # reset std output to avoid printing the intermediate messages
+            old_stdout = sys.stdout # backup current stdout
+            sys.stdout = open(os.devnull, "w")
+
+            source=evidences['SOURCE']
+            input_line=self.model.getLine(source)
+
+            for n_pl in range(2,self.__numOfEndPoints+1):
+                tmp_model = TheQueryMen(n_pl,modality='hardcore',num_lines=self.__num_lines)
+                tmp_model.generateSource(input_line)
+
+                vals=tmp_model.makeExactQuery([f'DECODER_{n_pl}'],evidences=evidences)
+                        
+                input_prob=round(vals[source],3)
+                out_line, out_prob=self.__getMostProbableOutput(vals)
+                t = Texttable()
+                t.add_rows([[f'INPUT (PROB. {input_prob})', f'MOST PROBABLE OUTPUT (PROB. {out_prob})'], [input_line, out_line]])
+                
+                sys.stdout = old_stdout # restore original std output
+                print(f"\n-----------------> PLAYER_{n_pl}")
+                print(t.draw())
+                sys.stdout = open(os.devnull, "w")
+
+
+
+            sys.stdout = old_stdout # restore original std output
+
+            return vals
 
 
 
