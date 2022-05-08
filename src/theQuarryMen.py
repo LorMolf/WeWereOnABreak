@@ -344,7 +344,7 @@ class TheQueryMen():
 
         return distr.values
 
-    def makeExactQuery(self,variables : list = [],evidences : dict = {}, printCPD=False) -> dict:
+    def makeExactQuery(self,variables : list = [], evidence : dict = {}, printCPD=False) -> dict:
         """
         Run the query P(variables|evidence) with the Variable Elimination algorithm.
         If the `printCPD` parameter is set to True then the table with all probabilities
@@ -360,7 +360,7 @@ class TheQueryMen():
         """
 
         inference=VariableElimination(self.BN)      
-        distr=inference.query(variables,evidence=evidences)
+        distr=inference.query(variables,evidence=evidence)
 
         if printCPD:
             print(distr)
@@ -436,7 +436,7 @@ class TheQueryMen():
         return res
 
 
-    def traceSwitches(self,variables : list = [],evidences : dict = {}) -> dict:
+    def traceSwitches(self,variables : list = [],evidence : dict = {}) -> dict:
         """
         This function, which can be used only in the 'hardcore' mode, compute
         the given query  P(variables|evidence) with the Variable Elimination
@@ -465,14 +465,14 @@ class TheQueryMen():
         old_stdout = sys.stdout # backup current stdout
         sys.stdout = open(os.devnull, "w")
 
-        source=evidences['SOURCE']
+        source=evidence['SOURCE']
         input_line=self.model.getLine(source)
 
         for n_pl in range(2,self.__numOfEndPoints+1):
             tmp_model = TheQueryMen(n_pl,modality='hardcore',num_lines=self.__num_lines)
             tmp_model.generateSource(input_line)
 
-            vals=tmp_model.makeExactQuery([f'DECODER_{n_pl}'],evidences=evidences)
+            vals=tmp_model.makeExactQuery([f'DECODER_{n_pl}'],evidence=evidence)
                     
             input_prob=round(vals[source],3)
             out_line, out_prob=self.__getMostProbableOutput(vals)
