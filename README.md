@@ -60,8 +60,7 @@ M;
 Every modality's features are net of the possibility to specify and analyze the noise presence.
 
 ## 2. Dataset and probability distributions
-Starting from the synonym and misspelling statistics, the
-switching probability of a line is computed according to the words composing it. Such a score is higher as higher is
+Starting from the synonym and misspelling statistics, the switching probability of a line is computed according to the words composing it. Such a score is higher as higher is
 the probability of getting an error. As a rule of thumb, we want the score to follow the
 principles below:
 - the longer the word the higher the score - the same Bit Error Rate level affects more a word with more letters (more bits)
@@ -134,7 +133,7 @@ The measure <img src="https://render.githubusercontent.com/render/math?math=p_k^
 To conclude, the Bit Error Rate levels' probability depending on the values of the telematic parameter above mentioned, are taken from the paper "Hector Reyes, Sriram Subramaniam, Naima Kaabouch - *A Bayesian Network Model of the Bit Error Rate for Cognitive Radio Network*".
 
 ## 3. Bayesian Network's structure
-The Bayesian Network structure is built to satisfy every modality of the game. In particular, the relations between the nodes are the same whilst the condition probability tables change to meet each modality's needs.
+The structure of our Bayesian Network is built to satisfy every modality of the game. In particular, the relations between the nodes are the same, whilst the condition probability tables change to meet each modality's needs.
 
 
 The Network's structure is meant to represent as faithfully as possible how players line up to play the game. Since we want to implement an acyclic network, we shall consider the last node of the chain to be a duplicate of the input one. Questioning whether the original message has remained the same during the game, here is translated into two different queries according to the chosen modality:
@@ -151,7 +150,7 @@ In the hardcore mode, we can only directly check the output of the last node. In
 Although the three modalities have these different approaches, the network's backbone is the same. Therefore, each player is represented as a node whose parents are the previous player and the current noise condition. The latter factor is expressed itself as a connected chain of nodes where each of them represents the noise condition that will characterize the communication path between its child player node and the next one. 
 
 
-The structure of our Bayesian Network is shown in figure \ref{fig:bn_struct}, wherein players are encoded as nodes named <img src="https://render.githubusercontent.com/render/math?math=\textit{DECODER}_x">, whilst noise nodes <img src="https://render.githubusercontent.com/render/math?math=\textit{BER}_n"> are named after the scale the range in, and whose numeration refers to which path they affect. Finally, the *EbN0*, *C/I* and *Phi* nodes are the implementations of the above disturbance factors, while the so-called *SOURCE* handle the choice of the original message. In the queries shown below, the latter node shall always be used as an evidence parameter.
+The structure of our Bayesian Network is shown in the figure below, wherein players are encoded as nodes named <img src="https://render.githubusercontent.com/render/math?math=\textit{DECODER}_x">, whilst noise nodes <img src="https://render.githubusercontent.com/render/math?math=\textit{BER}_n"> are named after the scale the range in, and whose numeration refers to which path they affect. Finally, the *EbN0*, *C/I* and *Phi* nodes are the implementations of the above disturbance factors, while the so-called *SOURCE* nodes handle the choice of the original message. In the queries shown below, the latter node shall always be used as an evidence parameter.
 
 As the last *DECODER* node is s way to represent the *SOURCE* node in order to avoid cyclicity, implementing the game for $n$ players requires $n+1$ nodes to be used: $n$ *DECODER*s plus the *SOURCE* node.
 
