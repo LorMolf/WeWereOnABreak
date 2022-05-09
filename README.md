@@ -5,10 +5,7 @@ An implementation of the "Chinese whispers" game with a Bayesian Network.
 
 
 ## Abstract
-This project aims at exploiting the features and the strengths of Bayesian Networks for the implementation of the "Chinese whisperers" game. The presented
-model allows us to determine whether the original message given as input goes through some changes due to erroneous word-of-mouth where the presence of noise
-is taken into account, too. For this purpose, it has been created a custom dataset which includes a score representing the tendency of each sentence to mutate based
-on the probability of each of its words being misspelt.
+This project aims at exploiting the features and the strengths of Bayesian Networks for the implementation of the "*Chinese whisperers*" game. The presented model allows us to determine whether the original message given as input goes through some changes due to erroneous word-of-mouth, where the presence of noise is taken into account, too. For this purpose, it has been created a custom dataset that includes a score representing the tendency of each sentence to mutate, based on the probability of each of its words being misspelt.
 
 
 ## 1. Introduction
